@@ -138,21 +138,10 @@
   .theme-sober{--bg:#F4F6F8;--text:#0B3A5C;--muted:#5C738A;--accent:#0E6BA8;
     --surface:rgba(255,255,255,.72);--border:rgba(11,58,92,.14);--track:rgba(11,58,92,.12)}
 
-  /* 反差系：左黑右白对半，内容压在深色一侧 */
+  /* 反差系：黑底白字 */
   .theme-contrast{
     --bg:#0A0A0A;--text:#F2F2F2;--muted:#9A9A9A;--accent:#F2F2F2;
     --surface:rgba(255,255,255,.06);--border:rgba(255,255,255,.18);--track:rgba(255,255,255,.16);
-    background:linear-gradient(90deg,#0A0A0A 0 56%,#F2F2F2 56% 100%);
-  }
-  .theme-contrast .vword{
-    position:absolute;right:10px;top:50%;transform:translateY(-50%);
-    writing-mode:vertical-rl;font-family:var(--serif);font-weight:700;font-size:88px;color:#0A0A0A;
-    letter-spacing:.06em;user-select:none;
-  }
-  .theme-contrast .screen{max-width:640px}
-  .theme-contrast .result .screen-content{max-width:56%}
-  @media (max-width:480px){
-    .theme-contrast .vword{font-size:64px;right:6px}
   }
 
   /* 颗粒纹理（深色页） */
@@ -482,12 +471,6 @@ function renderResultView(sorted, main){
       </div>
     </div>`;
 
-  if(main.theme === "theme-contrast"){
-    const v = document.createElement("div");
-    v.className = "vword";
-    v.textContent = "反差";
-    document.querySelector(".result").appendChild(v);
-  }
 }
 
 function copyResult(name){
