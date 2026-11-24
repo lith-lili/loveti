@@ -436,17 +436,9 @@ function renderResult(){
   TYPES.forEach(t=> counts[t.key]=0);
   let totalWeight = 0;
   valid.forEach(k=>{ if(k){ counts[k] += WEIGHTS[k]; totalWeight += WEIGHTS[k]; } });
-  // 清醒系与浮力系合并计分：合并值参与排名，胜者拿合并占比，败者归 0
-  const pairWinner = counts.sober >= counts.buoyant ? "sober" : "buoyant";
-  const pairLoser  = pairWinner === "sober" ? "buoyant" : "sober";
-  const merged = counts.sober + counts.buoyant;
-
-  const sorted = TYPES.map(t => {
-    let pct = totalWeight ? Math.round(counts[t.key] / totalWeight * 100) : 0;
-    if(t.key === pairWinner) pct = totalWeight ? Math.round(merged / totalWeight * 100) : 0;
-    if(t.key === pairLoser)  pct = 0;
-    return { ...t, count: counts[t.key], pct };
-  }).sort((a,b) => b.pct - a.pct || TYPES.indexOf(a) - TYPES.indexOf(b));
+  const sorted = TYPES.map(t=>({
+    ...t, count:counts[t.key], pct: totalWeight ? Math.round(counts[t.key]/totalWeight*100) : 0
+  })).sort((a,b)=> b.count-a.count || TYPES.indexOf(a)-TYPES.indexOf(b));
   const main = sorted[0];
 
   saveResult({ time: Date.now(), mainKey: main.key, pcts: sorted.map(t=>({key:t.key, pct:t.pct})) });
