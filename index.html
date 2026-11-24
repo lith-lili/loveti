@@ -439,7 +439,20 @@ function renderResult(){
   const sorted = TYPES.map(t=>({
     ...t, count:counts[t.key], pct: totalWeight ? Math.round(counts[t.key]/totalWeight*100) : 0
   })).sort((a,b)=> b.count-a.count || TYPES.indexOf(a)-TYPES.indexOf(b));
-  const main = sorted[0];
+  let main = sorted[0];
+
+  // 最后单独比较：重力系仅比清醒系多 ≤5 分时，对调占比并判定为清醒系
+  if(main.key === "gravity"){
+    const g = sorted.find(t => t.key === "gravity");
+    const s = sorted.find(t => t.key === "sober");
+    if(g.pct > s.pct && g.pct - s.pct <= 5){
+      const gp = g.pct;
+      g.pct = s.pct;
+      s.pct = gp;
+      sorted.sort((a,b) => b.pct - a.pct || TYPES.indexOf(a) - TYPES.indexOf(b));
+      main = TYPES.find(t => t.key === "sober");
+    }
+  }
 
   saveResult({ time: Date.now(), mainKey: main.key, pcts: sorted.map(t=>({key:t.key, pct:t.pct})) });
   updateHistoryBtn();
