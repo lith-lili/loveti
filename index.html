@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>你是什么「系」？</title>
+<meta name="description" content="几道魔鬼生死题，测出你的情感属性：重力系 / 浮力系 / 轻浮系 / 反差系 / 傲娇系 / 清醒系">
+<meta property="og:title" content="你是什么「系」？">
+<meta property="og:description" content="几道魔鬼生死题，测出你的情感属性">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:#0A0A0A;
+    --text:#F2F2F2;
+    --muted:#8C8C8C;
+    --accent:#F2F2F2;
+    --surface:rgba(255,255,255,.06);
+    --border:rgba(255,255,255,.16);
+    --track:rgba(255,255,255,.14);
+    --serif:"Songti SC","STSong","Noto Serif SC","SimSun",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    transition:background .5s ease,color .5s ease;
+  }
+  #app{min-height:100%;display:flex;flex-direction:column}
+
+  .screen{
+    flex:1;
+    width:100%;
+    max-width:560px;
+    margin:0 auto;
+    padding:28px 24px 40px;
+    display:flex;
+    flex-direction:column;
+    animation:fadeUp .45s ease both;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  /* ---------- 封面 ---------- */
+  .cover{justify-content:space-between;text-align:center;align-items:center;padding-top:12vh}
+  .cover .kicker{
+    font-size:12px;letter-spacing:.35em;color:var(--muted);text-transform:uppercase;margin-bottom:18px;
+  }
+  .cover h1{
+    font-family:var(--serif);font-weight:700;font-size:52px;letter-spacing:.02em;line-height:1.12;
+    text-align:center;margin-bottom:14px;
+  }
+  .cover h1 .sys{display:block;font-size:88px;line-height:1;margin-top:6px}
+  .cover .sub{font-size:15px;color:var(--muted);margin-bottom:6px}
+  .cover .note{font-size:12px;color:var(--muted);opacity:.7}
+  .cover .actions{margin-top:44px;width:100%}
+
+  /* ---------- 按钮 ---------- */
+  .btn{
+    display:block;width:100%;padding:17px 24px;border-radius:14px;border:1px solid var(--border);
+    background:var(--accent);color:var(--bg);font-family:var(--sans);font-size:17px;font-weight:700;
+    letter-spacing:.1em;cursor:pointer;transition:transform .15s ease,opacity .15s ease;
+  }
+  .btn:active{transform:scale(.97)}
+  .btn.ghost{background:transparent;color:var(--text);border-color:var(--border);font-weight:500;letter-spacing:.05em}
+
+  /* ---------- 答题 ---------- */
+  .quiz-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .quiz-head .count{font-size:13px;color:var(--muted);letter-spacing:.08em;font-variant-numeric:tabular-nums}
+  .quiz-head .back{
+    background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:4px 8px;font-family:var(--sans);
+  }
+  .quiz-head .back:disabled{opacity:.25;cursor:default}
+  .progress{height:3px;background:var(--track);border-radius:2px;overflow:hidden;margin-bottom:34px}
+  .progress .fill{height:100%;background:var(--accent);border-radius:2px;transition:width .35s ease}
+  .q-text{
+    font-family:var(--serif);font-size:24px;line-height:1.45;font-weight:700;margin-bottom:34px;min-height:104px;
+  }
+  .options{display:flex;flex-direction:column;gap:12px}
+  .option{
+    position:relative;display:flex;align-items:flex-start;gap:14px;width:100%;padding:18px 18px;
+    border:1px solid var(--border);border-radius:16px;background:var(--surface);color:var(--text);
+    font-size:16px;line-height:1.55;text-align:left;cursor:pointer;font-family:var(--sans);
+    transition:transform .15s ease,border-color .2s ease,background .2s ease;
+  }
+  .option .tag{
+    flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);
+    margin-top:1px;font-variant-numeric:tabular-nums;
+  }
+  .option:active{transform:scale(.98)}
+  .option.sel{border-color:var(--accent);background:var(--accent);color:var(--bg)}
+  .option.sel .tag{border-color:var(--bg);color:var(--bg)}
+  .option.dim{opacity:.35}
+
+  /* ---------- 结果 ---------- */
+  .result{position:relative;overflow:hidden}
+  .result .top{margin-bottom:10px}
+  .result .label{font-size:12px;letter-spacing:.35em;color:var(--muted);text-transform:uppercase;margin-bottom:16px}
+  .result .title{
+    font-family:var(--title-font,var(--sans));font-weight:700;font-size:72px;line-height:1.02;letter-spacing:.01em;
+    margin-bottom:14px;word-break:keep-all;
+  }
+  .result .hook{font-family:var(--serif);font-size:21px;font-weight:700;margin-bottom:18px}
+  .result .desc{font-size:15px;color:var(--muted);max-width:34em}
+  .result .divider{height:1px;background:var(--border);margin:30px 0 22px}
+
+  .chart-title{font-size:12px;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:16px}
+  .bars{display:flex;flex-direction:column;gap:15px}
+  .bar-row{display:flex;align-items:center;gap:14px}
+  .bar-row .name{flex:none;width:52px;font-size:14px;color:var(--muted);text-align:right}
+  .bar-row .track{flex:1;height:8px;background:var(--track);border-radius:4px;overflow:hidden;display:block}
+  .bar-row .fill{display:block;height:100%;background:var(--accent);border-radius:4px;transform-origin:left;animation:grow 1s ease both}
+  .bar-row .val{flex:none;width:46px;font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+  .bar-row.is-main .name{color:var(--text);font-weight:700}
+  .bar-row.is-main .val{color:var(--text);font-weight:700}
+  .bar-row.is-main .track{height:10px}
+  @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+  .result .actions{margin-top:34px;display:flex;flex-direction:column;gap:12px}
+
+  /* ---------- 主题 ---------- */
+  .theme-gravity{
+    --bg:#0A0A0A;--text:#E63946;--muted:#B06A6A;--accent:#E63946;
+    --surface:rgba(230,57,70,.09);--border:rgba(230,57,70,.30);--track:rgba(230,57,70,.18);
+    --title-font:var(--serif);
+  }
+  .theme-buoyant{--bg:#E9F3FF;--text:#0C2D4F;--muted:#5B82A5;--accent:#2E7FC8;
+    --surface:rgba(255,255,255,.6);--border:rgba(12,45,79,.16);--track:rgba(12,45,79,.12)}
+  .theme-frivolous{--bg:#1B0726;--text:#FBEAF2;--muted:#C08FB4;--accent:#FF5C8E;
+    --surface:rgba(255,255,255,.07);--border:rgba(255,255,255,.18);--track:rgba(255,255,255,.16);
+    background-image:linear-gradient(160deg,#2B0B3A 0%,#3B0F4D 55%,#7A1E55 100%)}
+  .theme-tsundere{--bg:#FFE3EC;--text:#8E1E4B;--muted:#B2668A;--accent:#D81B60;
+    --surface:rgba(255,255,255,.62);--border:rgba(142,30,75,.16);--track:rgba(142,30,75,.14)}
+  .theme-sober{--bg:#F4F6F8;--text:#0B3A5C;--muted:#5C738A;--accent:#0E6BA8;
+    --surface:rgba(255,255,255,.72);--border:rgba(11,58,92,.14);--track:rgba(11,58,92,.12)}
+
+  /* 反差系：左黑右白对半，内容压在深色一侧 */
+  .theme-contrast{
+    --bg:#0A0A0A;--text:#F2F2F2;--muted:#9A9A9A;--accent:#F2F2F2;
+    --surface:rgba(255,255,255,.06);--border:rgba(255,255,255,.18);--track:rgba(255,255,255,.16);
+    background:linear-gradient(90deg,#0A0A0A 0 56%,#F2F2F2 56% 100%);
+  }
+  .theme-contrast .vword{
+    position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    writing-mode:vertical-rl;font-family:var(--serif);font-weight:700;font-size:88px;color:#0A0A0A;
+    letter-spacing:.06em;user-select:none;
+  }
+  .theme-contrast .screen{max-width:640px}
+  .theme-contrast .result .screen-content{max-width:56%}
+  @media (max-width:480px){
+    .theme-contrast .vword{font-size:64px;right:6px}
+  }
+
+  /* 颗粒纹理（深色页） */
+  .grain{position:fixed;inset:0;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div id="app"></div>
+
+<script>
+const TYPES = [
+  { key:"gravity",   name:"重力系", hook:"什么也不能把我们分开，永远永远在一起吧", desc:"浓烈、执着、占有欲拉满，安全感永远不够，爱得深也内耗重。", theme:"theme-gravity" },
+  { key:"buoyant",   name:"浮力系", hook:"爱是锦上添花不是负担", desc:"轻盈自在，不束缚不焦虑，在一起舒服，分开了也能漂得起来。", theme:"theme-buoyant" },
+  { key:"frivolous", name:"轻浮系", hook:"万花丛中过，片叶不沾身", desc:"不认真、不承诺、玩世不恭，真心无重量，暧昧是常态。", theme:"theme-frivolous" },
+  { key:"contrast",  name:"反差系", hook:"人前高冷，人后只对你软", desc:"表里不一的反差萌，越了解越上头的类型。", theme:"theme-contrast" },
+  { key:"tsundere",  name:"傲娇系", hook:"嘴上说不要，身体很诚实", desc:"口是心非、嘴硬心软，越喜欢你越爱怼你。", theme:"theme-tsundere" },
+  { key:"sober",     name:"清醒系", hook:"上头慢、下头快，自带防沉迷", desc:"理性恋爱，及时止损，爱得明白，不为爱失智。", theme:"theme-sober" },
+];
+
+// 主分支题目（前 5 题为重力筛选题）
+const QUESTIONS = [
+  { text:"你的爱人有一个深爱过的、已经死去的人——你永远赢不了一个死人。你会？", options:[
+    { text:"分手。死人我争不过，凭什么要我一辈子当个活人替身", type:"sober" },
+    { text:"逼 TA 烧掉前任所有东西、亲口说现在最爱的是我，哪怕只把我当替身也认", type:"gravity" },
+    { text:"各玩各的呗，反正我也没多爱 TA，TA 心里供着谁关我屁事", type:"frivolous" },
+    { text:"嘴上装得大方，说谁还没个过去，背地里却把那个死人的照片翻出来研究八百遍，TA 一提那名字就阴阳怪气", type:"tsundere" },
+  ]},
+  { text:"你的爱人马上就要死了。你可以救 TA，但救了 TA 就会忘记你、并且永远不会再喜欢你。你会？", options:[
+    { text:"救 TA。我喜欢的人能幸福地活下去就够了，TA 忘了我也没关系", type:"buoyant" },
+    { text:"不救，不爱我了就不是那个ta了", type:"frivolous" },
+    { text:"救 TA，然后强迫 TA 留在我身边——TA 的命是我救的，属于我", type:"gravity" },
+    { text:"嘴上说着救 TA、TA 活着就行，转身却把 TA 的照片锁进抽屉，从此每天偷偷去看", type:"contrast" },
+  ]},
+  { text:"你的爱人有双重人格，一个人格深爱你，另一个人格想杀你。你会？", options:[
+    { text:"留下。我爱的是爱我的那个 TA，我愿意赌命，死也认了", type:"gravity" },
+    { text:"走人。命只有一条，爱情再大也大不过活命", type:"sober" },
+    { text:"嘴上硬气地说想杀我就来、看谁先死，背地里却在床底藏了把防身的刀", type:"tsundere" },
+    { text:"无所谓，多刺激，谈恋爱还附送极限运动，死了拉倒", type:"frivolous" },
+  ]},
+  { text:"你有一次机会复活死去的爱人，但代价是你自己减寿十年。你会？", options:[
+    { text:"复活。别说十年，用我全部的命换 TA 回来我都愿意", type:"gravity" },
+    { text:"不复活。人死不能复生，拿十年去赌一个不确定的未来，不划算", type:"sober" },
+    { text:"嘴上说着随便、抛个硬币决定，其实慌得要死，偷偷去问遍所有算命先生", type:"contrast" },
+    { text:"复活。但我不会告诉 TA 我花了十年，TA 开心就好", type:"buoyant" },
+  ]},
+  { text:"你的爱人只剩三个月可活。你会怎么过这三个月？", options:[
+    { text:"陪 TA 走完最后一程，把每天都当末日来爱，TA 走了我也跟着走", type:"gravity" },
+    { text:"照常过日子，该干嘛干嘛，生死有命，不想搞得天塌了一样", type:"buoyant" },
+    { text:"嘴上说着三个月够了、没空天天陪 TA 哭，背地里却求遍名医偏方", type:"tsundere" },
+    { text:"一边陪 TA，一边冷静地把遗嘱、葬礼、身后事全安排得明明白白", type:"sober" },
+  ]},
+  { text:"你死后变成鬼飘回家，发现爱人很快就有了新欢。你会？", options:[
+    { text:"当场黑化，天天缠着 TA 和新欢，搅得他们不得安宁", type:"gravity" },
+    { text:"都死了还争什么，祝 TA 幸福，我头也不回去投胎了", type:"buoyant" },
+    { text:"嘴上说着才多久就找新的、果然没爱过我，其实天天蹲墙角偷看", type:"tsundere" },
+    { text:"笑着飘过去道了声恭喜，转头却把新欢的底细查个底朝天，天天诅咒他们分手", type:"contrast" },
+  ]},
+  { text:"你的爱人其实是个骗子/卧底，接近你另有目的，但你已深爱。真相曝光后你会？", options:[
+    { text:"报警、抽身，及时止损——感情被骗，但我不能连命和钱都搭进去", type:"sober" },
+    { text:"无所谓，我也没多认真，反正该享受的都享受了，扯平", type:"frivolous" },
+    { text:"我不管 TA 骗我什么，只要 TA 愿意留在我身边，装下去我也认", type:"gravity" },
+    { text:"嘴硬说自己早就看出来了，背地里却把 TA 背叛的证据一条条留好，等一个翻脸的机会", type:"contrast" },
+  ]},
+  { text:"你的爱人失忆了，把你当成陌生人。你会？", options:[
+    { text:"分手。TA 已经不是认识我的那个 TA 了，强留没意义", type:"sober" },
+    { text:"正好重新开始，追得到就追，追不到就换人，我不亏", type:"frivolous" },
+    { text:"我偏要把 TA 抢回来，用尽手段让 TA 重新想起我、爱上我，哪怕用偏方也要找回记忆", type:"gravity" },
+    { text:"嘴上说着忘了就忘了、谁稀罕你，转身回家却把自己关起来哭了一整夜", type:"tsundere" },
+  ]},
+  { text:"你可以穿越回过去，但代价是改变你们相遇的那一刻（你们可能再也不会遇见）。你会？", options:[
+    { text:"不穿。现在 TA 爱我就够了，我赌不起失去 TA", type:"gravity" },
+    { text:"穿。真错过了就说明本来就不该在一起，随缘", type:"buoyant" },
+    { text:"先算一笔账：回到过去到底对我划不划算，值得才穿", type:"sober" },
+    { text:"嘴上说着我才不在乎、穿就穿，转头却偷偷把和 TA 的每一张合照都翻拍备份", type:"contrast" },
+  ]},
+  { text:"你的爱人和你的家人同时有危险，只能救一个。你救谁？", options:[
+    { text:"救家人。爱情可以重来，家人独一无二", type:"sober" },
+    { text:"救爱人。这辈子我只认 TA，家人会原谅我的", type:"gravity" },
+    { text:"嘴上答应 TA 一定先救 TA，真到那一刻身体却先冲向了家人，事后跪着道歉", type:"contrast" },
+    { text:"先救自己。我死了救谁都没意义，抱歉我只能顾自己", type:"frivolous" },
+  ]},
+  { text:"你的爱人出轨了，却哭着说最爱的人还是你。你会？", options:[
+    { text:"分手。出轨只有零次和无数次，我不当冤种", type:"sober" },
+    { text:"原谅 TA。只要 TA 还回我身边，再脏的过去我也咽得下", type:"gravity" },
+    { text:"无所谓，正好我也在外面有人，扯平了，继续搭伙过", type:"frivolous" },
+    { text:"嘴上说着滚、谁稀罕你，把 TA 赶出门后，自己却对着空房间哭到天亮", type:"tsundere" },
+  ]},
+  { text:"你的爱人变成了怪物/丧尸，只有亲手了结 TA 才能阻止 TA 伤害别人。你会？", options:[
+    { text:"下不了手，我宁愿被 TA 咬死，也不想 TA 再受一次伤", type:"gravity" },
+    { text:"下得了手。TA 已经不是 TA 了，送 TA 最后一程才是真的爱", type:"sober" },
+    { text:"嘴上说着我来、轻松得很，举刀的手却抖了一整夜", type:"contrast" },
+    { text:"扭头就跑。我还没活够，谁爱了结谁了结", type:"frivolous" },
+  ]},
+  { text:"你突然发现，你深爱多年的爱人其实是你幻想出来的，TA 根本不存在。你会？", options:[
+    { text:"哪怕 TA 是假的，我也要守着这个幻影过一辈子，谁也别想叫醒我", type:"gravity" },
+    { text:"赶紧看医生，积极配合治疗，人不能活在幻觉里", type:"sober" },
+    { text:"假的就假的，总比没有强，继续当游戏玩", type:"frivolous" },
+    { text:"嘴硬不承认自己疯了，背地里却记下 TA 的每个细节，怕哪天连幻觉都消失", type:"tsundere" },
+  ]},
+  { text:"世界末日，飞船上只剩最后一个位置，你和爱人只能走一个。你会？", options:[
+    { text:"把位置让给 TA，TA 活下去我就满足了", type:"buoyant" },
+    { text:"我上船。死到临头谁还顾得上爱情，保命要紧", type:"frivolous" },
+    { text:"要么一起走，要么一起死——我不上，也不准 TA 上", type:"gravity" },
+    { text:"把 TA 推上船让 TA 快走，转头却自己躲起来哭", type:"contrast" },
+  ]},
+];
+
+// 二分支：前五题完全没选重力系时，用这些题分辨其余五个系
+const BRANCH2 = [
+  { text:"如果爱一个人让你很累，你会？", options:[
+    { text:"累了就放手，强扭的瓜不甜，我先学会爱自己", type:"buoyant" },
+    { text:"累就换一个，感情嘛开心最重要，下一个更乖", type:"frivolous" },
+    { text:"嘴上说着不累挺好的，背地里却累到偷偷哭，还是咬牙硬撑", type:"contrast" },
+    { text:"嘴上说早就不想爱了，其实一边嫌弃一边又舍不得走", type:"tsundere" },
+  ]},
+  { text:"对方突然说想冷静一下，你会？", options:[
+    { text:"行，那我也别闲着，正好去认识认识新的人，谁也别耽误谁", type:"frivolous" },
+    { text:"嘴上说随便你，背地里却把 TA 的每一条动态都刷了个遍，慌得不行", type:"contrast" },
+    { text:"嘴上说冷就冷谁怕谁，其实天天抱着手机等 TA 先低头", type:"tsundere" },
+    { text:"趁这时间把关系捋清楚：TA 是真想分还是闹情绪，顺便想好自己的退路", type:"sober" },
+  ]},
+  { text:"恋爱里，你最想从这段关系里得到什么？", options:[
+    { text:"轻松舒服没压力，像和最好的朋友待在一起一样自在", type:"buoyant" },
+    { text:"表面上各玩各的、互不干涉，背地里其实都把对方当成唯一", type:"contrast" },
+    { text:"嘴上互怼打打闹闹，心里却把对方宠上天", type:"tsundere" },
+    { text:"情绪稳定、边界清晰，谁也不消耗谁", type:"sober" },
+  ]},
+  { text:"对方总是很久才回消息，你会？", options:[
+    { text:"无所谓，看到了就回，我也不是随时在线的人", type:"buoyant" },
+    { text:"谁先主动谁就输了，我也晾着，顺便看看还有谁", type:"frivolous" },
+    { text:"嘴上说爱回不回，其实手机一响就以为是 TA", type:"tsundere" },
+    { text:"直接说清楚回太慢我会没安全感，能改就继续，不能就算了", type:"sober" },
+  ]},
+  { text:"明知道一段感情没有结果，你还会开始吗？", options:[
+    { text:"会。享受过程就好，结果没那么重要，开心过就不亏", type:"buoyant" },
+    { text:"会。反正我也没奔着结果去，玩玩而已", type:"frivolous" },
+    { text:"嘴上说无所谓玩玩而已，真陷进去了又出不来", type:"contrast" },
+    { text:"不会。明知没结果还投入，是对自己不负责", type:"sober" },
+  ]},
+];
+
+const FIRST5 = QUESTIONS.slice(0, 5);
+const MAIN_TAIL = QUESTIONS.slice(5);
+const LETTERS = ["A","B","C","D"];
+const app = document.getElementById("app");
+let current = 0;
+let answers = [];
+let locked = false;
+
+function getDeck(){
+  const grav = answers.slice(0, 5).some(k => k === "gravity");
+  return FIRST5.concat(grav ? MAIN_TAIL : BRANCH2);
+}
+
+function setTheme(cls){
+  document.body.className = cls || "";
+}
+
+function renderCover(){
+  setTheme("");
+  app.innerHTML = `
+    <div class="screen cover">
+      <div>
+        <div class="kicker">魔鬼生死题 · 情感属性鉴定</div>
+        <h1>你是什么<span class="sys">「系」</span></h1>
+        <p class="sub">几道魔鬼生死题，测出你骨子里的情感成分</p>
+        <p class="note">重力系 / 浮力系 / 轻浮系 / 反差系 / 傲娇系 / 清醒系</p>
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="startQuiz()">开始测试</button>
+        <p class="note" style="margin-top:14px">仅供娱乐 · 灵感来自网络热梗</p>
+      </div>
+    </div>`;
+}
+
+function startQuiz(){
+  current = 0;
+  answers = [];
+  locked = false;
+  renderQuiz();
+}
+
+function renderQuiz(){
+  setTheme("");
+  const deck = getDeck();
+  const q = deck[current];
+  const displayTotal = current < 5 ? 14 : deck.length;
+  const pct = Math.round(current / (displayTotal - 1) * 100);
+  const pre = answers[current];
+  app.innerHTML = `
+    <div class="screen">
+      <div class="quiz-head">
+        <button class="back" onclick="goBack()" ${current===0?"disabled":""}>← 上一题</button>
+        <span class="count">${current+1} / ${displayTotal}</span>
+      </div>
+      <div class="progress"><div class="fill" style="width:${pct}%"></div></div>
+      <div class="q-text">${q.text}</div>
+      <div class="options">
+        ${q.options.map((o,i)=>`
+          <button class="option ${pre===o.type?"sel":""}" onclick="choose(${i})">
+            <span class="tag">${LETTERS[i]}</span>
+            <span>${o.text}</span>
+          </button>`).join("")}
+      </div>
+    </div>`;
+}
+
+function goBack(){
+  if(current > 0){
+    current--;
+    if(current < 5){ answers.length = 5; } // 回到筛选区，清掉后续答案，重新分流
+    renderQuiz();
+  }
+}
+
+function choose(i){
+  if(locked) return;
+  locked = true;
+  const q = getDeck()[current];
+  answers[current] = q.options[i].type;
+  const opts = document.querySelectorAll(".option");
+  opts.forEach((el,idx)=>{
+    el.classList.toggle("sel", idx===i);
+    el.classList.toggle("dim", idx!==i);
+  });
+  setTimeout(()=>{
+    locked = false;
+    const deck = getDeck();
+    if(current < deck.length - 1){ current++; renderQuiz(); }
+    else { renderResult(); }
+  }, 240);
+}
+
+function renderResult(){
+  const deck = getDeck();
+  const n = deck.length;
+  const valid = answers.slice(0, n);
+  const counts = {};
+  TYPES.forEach(t=> counts[t.key]=0);
+  valid.forEach(k=>{ if(k) counts[k]++; });
+  const sorted = TYPES.map(t=>({
+    ...t, count:counts[t.key], pct:Math.round(counts[t.key]/n*100)
+  })).sort((a,b)=> b.count-a.count || TYPES.indexOf(a)-TYPES.indexOf(b));
+  const main = sorted[0];
+
+  setTheme(main.theme);
+  app.innerHTML = `
+    <div class="screen result">
+      <div class="screen-content">
+        <div class="label">你的情感属性是</div>
+        <div class="title">${main.name}</div>
+        <div class="hook">${main.hook}</div>
+        <p class="desc">${main.desc}</p>
+        <div class="divider"></div>
+        <div class="chart-title">你的「系」成分表</div>
+        <div class="bars">
+          ${sorted.map(t=>`
+            <div class="bar-row ${t.key===main.key?"is-main":""}">
+              <span class="name">${t.name}</span>
+              <span class="track"><span class="fill" style="width:${t.pct}%"></span></span>
+              <span class="val">${t.pct}%</span>
+            </div>`).join("")}
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="copyResult('${main.name}')">复制结果文案</button>
+          <button class="btn ghost" onclick="startQuiz()">再测一次</button>
+        </div>
+      </div>
+    </div>`;
+
+  if(main.theme === "theme-contrast"){
+    const v = document.createElement("div");
+    v.className = "vword";
+    v.textContent = "反差";
+    document.querySelector(".result").appendChild(v);
+  }
+}
+
+function copyResult(name){
+  const text = `我测出来是【${name}】！魔鬼生死题，看看你是什么「系」？`;
+  const done = ()=>{
+    const b = document.querySelector(".actions .btn");
+    const old = b.textContent;
+    b.textContent = "已复制 ✓";
+    setTimeout(()=> b.textContent = old, 1500);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else { fallbackCopy(text,done); }
+}
+
+function fallbackCopy(text,done){
+  const ta = document.createElement("textarea");
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); done(); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+renderCover();
+</script>
+</body>
+</html>
