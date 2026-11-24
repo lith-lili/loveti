@@ -174,6 +174,9 @@ const TYPES = [
   { key:"sober",     name:"清醒系", hook:"上头慢、下头快，自带防沉迷", desc:"理性恋爱，及时止损，爱得明白，不为爱失智。", theme:"theme-sober" },
 ];
 
+// 计分权重：重力系每次 0.8 分，其余系 1 分
+const WEIGHTS = { gravity: 0.8, buoyant: 1, frivolous: 1, contrast: 1, tsundere: 1, sober: 1 };
+
 // 主分支题目（前 5 题为重力筛选题）
 const QUESTIONS = [
   { text:"你的爱人有一个深爱过的、已经死去的人——你永远赢不了一个死人。你会？", options:[
@@ -395,9 +398,10 @@ function renderResult(){
   const valid = answers.slice(0, n);
   const counts = {};
   TYPES.forEach(t=> counts[t.key]=0);
-  valid.forEach(k=>{ if(k) counts[k]++; });
+  let totalWeight = 0;
+  valid.forEach(k=>{ if(k){ counts[k] += WEIGHTS[k]; totalWeight += WEIGHTS[k]; } });
   const sorted = TYPES.map(t=>({
-    ...t, count:counts[t.key], pct:Math.round(counts[t.key]/n*100)
+    ...t, count:counts[t.key], pct: totalWeight ? Math.round(counts[t.key]/totalWeight*100) : 0
   })).sort((a,b)=> b.count-a.count || TYPES.indexOf(a)-TYPES.indexOf(b));
   const main = sorted[0];
 
