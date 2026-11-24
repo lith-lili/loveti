@@ -210,8 +210,8 @@ const TYPES = [
   { key:"sober",     name:"清醒系", hook:"比起戒指的大小，我更想知道天地的尺寸", desc:"理性恋爱，及时止损，爱得明白，不为爱失智。<br>我崇拜流浪，变化和幻想，不愿将我的爱钉在地球的某处", theme:"theme-sober" },
 ];
 
-// 计分权重：重力系每次 0.8 分，其余系 1 分
-const WEIGHTS = { gravity: 0.8, buoyant: 1, frivolous: 1, contrast: 1, tsundere: 1, sober: 1 };
+// 计分权重：重力系 0.8、清醒系 0.9，其余系 1 分
+const WEIGHTS = { gravity: 0.8, buoyant: 1, frivolous: 1, contrast: 1, tsundere: 1, sober: 0.9 };
 
 // 主分支题目（前 5 题为重力筛选题）
 const QUESTIONS = [
